@@ -15,7 +15,9 @@ item = [3, 1]
 snake = [[1, 1], [2, 1]]
 
 direction = "d"
+old_direction = "a"
 
+score =-1
 
 def initGame():
     """
@@ -85,21 +87,56 @@ def moveSnake():
     w=up
     """
     global snakes
+    global old_direction
     head = snake[-1]
-    
-    if direction == "d" :
+    # move direction test  ==> if direction not allowed then still move direction == old_direction
+    move_direction = checkAllowedMoves(direction)
+   
+    if move_direction == "d" :
         next = [head[0]+1, head[1]]
-    elif direction == "s":
-        next = [head[0], head[1]+1]
-    elif direction == "a":
-        next = [head[0]-1, head[1]]
-    elif direction == "w":
-        next = [head[0], head[1]-1]
-    
-    snake.append(next)
 
+    elif move_direction == "s":
+        next = [head[0], head[1]+1]
+  
+    elif move_direction == "a":
+        next = [head[0]-1, head[1]]
+
+    elif move_direction == "w":
+        next = [head[0], head[1]-1]
+
+    # after each move set old_direction in the opposite direction of move_direction
+    old_direction= checkDirection(move_direction)
+
+    snake.append(next)
     # Check out of playground
     return next[0] > xSize-1 or next[1] > ySize-1 or next[0] < 0 or next[1] < 0
+
+
+
+def checkAllowedMoves(new_direction):
+    # Check of the next wanted move is allowed !!
+    if old_direction == new_direction:
+        return checkDirection(new_direction)
+    
+    elif new_direction !="a" and  new_direction !="d" and new_direction !="s" and  new_direction !="w":
+        return checkDirection(old_direction)
+    
+    # if move allowd 
+    else:
+        return new_direction
+
+
+
+def checkDirection(check_Fall):
+    if check_Fall == "a":
+        return "d"
+    elif check_Fall =="d":
+        return "a"
+    elif check_Fall == "w":
+        return "s"
+    elif check_Fall == "s":
+        return "w"
+    
 
 
 def checkItem():
@@ -112,6 +149,10 @@ def checkItem():
     if snakeHead[1] == item[1] and snakeHead[0] == item[0]:
         # Item eaten
         placeNewItem()
+        
+        # nach jedem "Item eaten" wird Scour um 1 vergreoßert
+        global score 
+        score  +=1
     else:
         snake.pop(0)
 
@@ -121,6 +162,9 @@ def placeNewItem():
     Place new item randomly 
     """
     global item
+
+
+
     randomX = random.randint(0, xSize-1)
     randomY = random.randint(0, ySize-1)
 
@@ -168,7 +212,7 @@ if __name__ == '__main__':
             end = True
 
         checkItem()
-
+        print("Score :" + str(score))
         time.sleep(speed)
 
     print("Game over")
